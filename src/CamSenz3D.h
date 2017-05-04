@@ -12,6 +12,7 @@
 #include "opencv2\imgproc\imgproc.hpp"
 #include "opencv2\video\video.hpp"
 #include "opencv2\objdetect\objdetect.hpp"
+#include "opencv2\ml\ml.hpp"
 
 
 enum ImgType { RGB, DEPTH, IR };
@@ -21,9 +22,10 @@ class CamSenz3D
 {
 private:
 	cv::VideoCapture capture;
+	cv::Ptr<cv::ml::SVM> svm_rgb;
+	cv::Ptr<cv::ml::SVM> svm_depth;
 
 	void imshowDepth(const char *winname, cv::Mat &depth, cv::VideoCapture &capture);
-	void normalize(cv::Mat &depthImage, cv::Mat &depthNorImg);
 	bool detectFace(const cv::Mat &img, cv::Rect &rect);
 public:
 	CamSenz3D();

@@ -1,78 +1,17 @@
 #include "CamSenz3D.h"
 
-#include "pxcsession.h"
-#include "pxcsmartptr.h"
-#include "pxccapture.h"
-#include "util_render.h"
-#include "util_capture_file.h"
+#include "util_LBP_CV.h"
+#include "util_depth.h"
+
+
+
+#include <iostream>
 
 //---------------------------------------------------------------------------------------
 CamSenz3D::CamSenz3D(){}
 
 //---------------------------------------------------------------------------------------
 CamSenz3D::~CamSenz3D(){}
-
-//---------------------------------------------------------------------------------------
-void CamSenz3D::normalize(cv::Mat &depthImage, cv::Mat &depthNorImg)
-{
-	/*
-	//NORMALIZACION SIMPLE
-	double min;
-	double max;
-	cv::minMaxIdx(faceDepth, &min, &max);
-	cv::Mat adjFace;
-	float scale = 255 / (max - min);
-	faceDepth.convertTo(adjFace, CV_8UC1, scale, -min*scale);
-	cv::equalizeHist(adjFace, adjFace);
-	cv::resize(adjFace, adjFace, imgSize);
-	cv::cvtColor(adjFace, adjFace, CV_GRAY2BGR);
-	cv::drawKeypoints(adjFace, keypoints_1, adjFace);
-	cv::imshow("Depth face_00", adjFace);//cv::imwrite("c:\\img.jpg", adjFace);
-	*/
-
-	cv::Mat_<double> depthNorm(depthImage.size());
-
-	std::vector <ushort> cleanDepth;
-	for (int col = 0; col < depthImage.cols; col++)
-	{
-		for (int row = 0; row < depthImage.rows; row++)
-		{
-			ushort depth = depthImage.at<ushort>(row, col);
-			if (depth > 0)
-				cleanDepth.push_back(depth);
-		}
-	}
-	cv::Scalar mean;
-	cv::Scalar stddev;
-	cv::meanStdDev(cleanDepth, mean, stddev);
-	double cleanMin = mean.val[0] - 3 * stddev.val[0];
-	double cleanMax = mean.val[0] + 3 * stddev.val[0];
-	//std::cout << cleanMax << "-" << cleanMin << std::endl;
-	for (int col = 0; col < depthImage.cols; col++)
-	{
-		for (int row = 0; row < depthImage.rows; row++)
-		{
-			float depth = depthImage.at<ushort>(row, col);
-			if ((depth < cleanMin) || (depth > cleanMax))
-			{
-				depthNorm.at<double>(row, col) = 0;
-			}
-			else
-			{
-				depthNorm.at<double>(row, col) = (1 - ((depthImage.at<ushort>(row, col) - cleanMin) / (cleanMax - cleanMin))) * 255;
-			}
-		}
-	}
-
-	depthNorImg = depthNorm;
-
-	// PARA VER LA IMAGEN NORMALIZADA
-	cv::Mat depthGrayNormalicedFace;
-	depthNorImg.convertTo(depthGrayNormalicedFace, CV_8UC1);
-	cv::equalizeHist(depthGrayNormalicedFace, depthGrayNormalicedFace);
-	cv::imshow("imagenDepth Normalize", depthGrayNormalicedFace);
-	//cv::waitKey();
-}
 
 //---------------------------------------------------------------------------------------
 void CamSenz3D::imshowDepth(const char *winname, cv::Mat &depth, cv::VideoCapture &capture)
@@ -83,7 +22,7 @@ void CamSenz3D::imshowDepth(const char *winname, cv::Mat &depth, cv::VideoCaptur
 	cv::Mat image;
 	//depth = depth(cv::Rect(100, 100,100,100));
 	cv::Mat depthNorm;
-	normalize(depth, depthNorm);
+	Util_Depth::normalize(depth, depthNorm);
 
 	image.create(depth.rows, depth.cols, CV_8UC1);
 	for (int row = 0; row < depth.rows; row++)
@@ -146,6 +85,10 @@ int CamSenz3D::init()
 		//std::cerr << "Can not setup a depth stream." << std::endl;
 		return -1;
 	}
+
+	svm_depth = cv::ml::SVM::load("svm_1_depth.svm");   //PROFUNDIDAD ENTRENADO ANTIGUO
+	svm_rgb = cv::ml::SVM::load("svm_attack_01.svm"); //RGB_ENTRENADO_NUEVO
+	
 
 	return 0;
 }
@@ -213,13 +156,35 @@ int CamSenz3D::isAttack()
 			//cv::imshow("bgr2Depth", bgr2Depth);
 
 			cv::Rect rectFace;
-			if (detectFace(bgr2Depth, rectFace))
+			if (detectFace(bgrImage, rectFace))
 			{
-				cv::Mat matFace = bgr2Depth(rectFace);
-				cv::imshow("face bgr2Depth", matFace);
+				cv::Mat matFace = bgrImage(rectFace);
+				cv::resize(matFace, matFace, cv::Size(100, 100));
+				cv::imshow("face bgr", matFace);
+				cv::Mat_<double> featuresRGB;
+				Util_LBP_CV::LBP_RGB(matFace, featuresRGB);
 
-				cv::Mat matFaceDepth = depthImage(rectFace);
+				cv::Mat_<float> sample = featuresRGB;
+				float result = svm_rgb->predict(sample, cv::noArray(), cv::ml::StatModel::RAW_OUTPUT);
+				int preditClass = svm_rgb->predict(sample, cv::noArray());
+				float confidence = 1.0 / (1.0 + exp(-result));
+				std::cout << "RGB" << result << " - " << confidence << " - " << preditClass << std::endl;
+			}
+
+			cv::Rect rectFacedDepth;
+			if (detectFace(bgr2Depth, rectFacedDepth))
+			{
+				cv::Mat matFaceDepth = depthImage(rectFacedDepth);
+				cv::resize(matFaceDepth, matFaceDepth, cv::Size(100, 100));
 				this->imshowDepth("face depthImage", matFaceDepth, capture);
+				cv::Mat_<double> featureDepth;
+				Util_LBP_CV::LBP_Depth(matFaceDepth, featureDepth);
+
+				cv::Mat_<float> sample = featureDepth;
+				float result = svm_depth->predict(sample, cv::noArray(), cv::ml::StatModel::RAW_OUTPUT);
+				int preditClass = svm_depth->predict(sample, cv::noArray());
+				float confidence = 1.0 / (1.0 + exp(-result));
+				std::cout << "DEPTH" << result << " - " << confidence << " - " << preditClass << std::endl;
 			}
 
 			
@@ -232,5 +197,7 @@ int CamSenz3D::isAttack()
 //---------------------------------------------------------------------------------------
 int CamSenz3D::stop()
 {
+	svm_rgb.release();
+	svm_depth.release();
 	return 0;
 }

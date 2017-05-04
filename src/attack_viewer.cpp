@@ -11,8 +11,8 @@ int main(int argc, char* argv[])
 	for (;; frame++)
 	{
 		cam.isAttack();
-
-		cv::waitKey(30);
+		
+		cv::waitKey(20);
 	}
 
 	cam.stop();

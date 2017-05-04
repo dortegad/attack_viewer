@@ -199,6 +199,8 @@
   <ItemGroup>
     <ClCompile Include="src\CamSenz3D.cpp" />
     <ClCompile Include="Src\attack_viewer.cpp" />
+    <ClCompile Include="src\util_depth.cpp" />
+    <ClCompile Include="src\util_LBP_CV.cpp" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
