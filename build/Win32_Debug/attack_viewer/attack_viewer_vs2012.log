@@ -1,13 +1,12 @@
-﻿Build started 04/05/2017 16:34:45.
+﻿Build started 05/05/2017 11:38:39.
      1>Project "C:\Program Files (x86)\Intel\PCSDK\sample\attack_viewer\attack_viewer_vs2012.vcxproj" on node 2 (Build target(s)).
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(388,5): warning MSB8028: The intermediate directory (build/Win32_Debug/attack_viewer/) contains files shared from another project (camera_viewer.vcxproj).  This can lead to incorrect clean and rebuild behavior.
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I. /Iinclude /Ires /I"C:\Program Files (x86)\Intel\PCSDK\/include" /I"C:\Program Files (x86)\Intel\PCSDK\/sample/common/include" /I"C:\opencv-3.2.0\build\install\include" /Z7 /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _WIN32_WINNT=0x0600 /D _UNICODE /D UNICODE /Gm- /EHsc /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"build/Win32_Debug/attack_viewer/" /Gd /TP /analyze- /errorReport:prompt src\CamSenz3D.cpp
          CamSenz3D.cpp
-     1>src\CamSenz3D.cpp(169): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>src\CamSenz3D.cpp(170): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>src\CamSenz3D.cpp(185): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>src\CamSenz3D.cpp(186): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>src\CamSenz3D.cpp(173): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>src\CamSenz3D.cpp(174): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>src\CamSenz3D.cpp(189): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>src\CamSenz3D.cpp(190): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"bin/Win32/attack_viewer_d.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Program Files (x86)\Intel\PCSDK\/lib/Win32" /LIBPATH:"C:\Program Files (x86)\Intel\PCSDK\/sample/common/lib/Win32/v120" /LIBPATH:"C:\opencv-3.2.0\build\install\x86\vc12\lib" libpxc_d.lib libpxcutils_d.lib opencv_aruco320d.lib opencv_bgsegm320d.lib opencv_bioinspired320d.lib opencv_calib3d320d.lib opencv_ccalib320d.lib opencv_core320d.lib opencv_datasets320d.lib opencv_dnn320d.lib opencv_dpm320d.lib opencv_face320d.lib opencv_features2d320d.lib opencv_flann320d.lib opencv_fuzzy320d.lib opencv_highgui320d.lib opencv_imgcodecs320d.lib opencv_imgproc320d.lib opencv_line_descriptor320d.lib opencv_ml320d.lib opencv_objdetect320d.lib opencv_optflow320d.lib opencv_phase_unwrapping320d.lib opencv_photo320d.lib opencv_plot320d.lib opencv_reg320d.lib opencv_rgbd320d.lib opencv_saliency320d.lib opencv_shape320d.lib opencv_stereo320d.lib opencv_stitching320d.lib opencv_structured_light320d.lib opencv_superres320d.lib opencv_surface_matching320d.lib opencv_text320d.lib opencv_tracking320d.lib opencv_video320d.lib opencv_videoio320d.lib opencv_videostab320d.lib opencv_xfeatures2d320d.lib opencv_ximgproc320d.lib opencv_xobjdetect320d.lib opencv_xphoto320d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"bin/Win32/attack_viewer_d.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"bin/Win32/attack_viewer_d.lib" /MACHINE:X86 /SAFESEH build/Win32_Debug/attack_viewer/CamSenz3D.obj
          build/Win32_Debug/attack_viewer/attack_viewer.obj
@@ -18,4 +17,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.80
+Time Elapsed 00:00:02.26

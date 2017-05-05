@@ -86,8 +86,12 @@ int CamSenz3D::init()
 		return -1;
 	}
 
-	svm_depth = cv::ml::SVM::load("svm_1_depth.svm");   //PROFUNDIDAD ENTRENADO ANTIGUO
-	svm_rgb = cv::ml::SVM::load("svm_attack_01.svm"); //RGB_ENTRENADO_NUEVO
+	//svm_depth = cv::ml::SVM::load("svm_1_2_3_4_5_depth.svm");   //PROFUNDIDAD TODOS LOS ATAQUES (ENTREANDO ANTES)
+	svm_depth = cv::ml::SVM::load("svm_1_depth.svm"); // PROFUNDIDAD ATAQUE 1 (ENTRENADO ANTES)
+	//svm_rgb = cv::ml::SVM::load("svm_attack_01.svm"); //RGB ATAQUE 1 (ENTRENADO_NUEVO)
+	//svm_rgb = cv::ml::SVM::load("svm_1_2_3_4_5_rgb.svm"); //RGB TODOS LOS ATAQUES (ENTRENADO ANTES)
+	svm_rgb = cv::ml::SVM::load("svm_1_rgb.svm"); //RGB ATAQUE 1 (ENTRENADO ANTES)
+	
 	
 
 	return 0;
@@ -168,7 +172,7 @@ int CamSenz3D::isAttack()
 				float result = svm_rgb->predict(sample, cv::noArray(), cv::ml::StatModel::RAW_OUTPUT);
 				int preditClass = svm_rgb->predict(sample, cv::noArray());
 				float confidence = 1.0 / (1.0 + exp(-result));
-				std::cout << "RGB" << result << " - " << confidence << " - " << preditClass << std::endl;
+				//std::cout << "RGB" << result << " - " << confidence << " - " << preditClass << std::endl;
 			}
 
 			cv::Rect rectFacedDepth;
