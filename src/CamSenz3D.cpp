@@ -3,10 +3,9 @@
 #include "util_LBP_CV.h"
 #include "util_depth.h"
 
-
-
 #include <iostream>
-
+#include <stdio.h>
+#include <stddef.h>
 //---------------------------------------------------------------------------------------
 CamSenz3D::CamSenz3D(){}
 
@@ -64,39 +63,106 @@ bool CamSenz3D::detectFace(const cv::Mat &img, cv::Rect &rect)
 		return false;
 }
 
+
+//---------------------------------------------------------------------------------------
+void CamSenz3D::printStreamProperties(cv::VideoCapture &capture)
+{
+	int profilesCount = capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_INTELPERC_PROFILE_COUNT);
+	std::cout << "Image stream." << std::endl;
+	std::cout << "  Brightness = " << capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_BRIGHTNESS) << std::endl;
+	std::cout << "  Contrast = " << capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_CONTRAST) << std::endl;
+	std::cout << "  Saturation = " << capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_SATURATION) << std::endl;
+	std::cout << "  Hue = " << capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_HUE) << std::endl;
+	std::cout << "  Gamma = " << capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_GAMMA) << std::endl;
+	std::cout << "  Sharpness = " << capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_SHARPNESS) << std::endl;
+	std::cout << "  Gain = " << capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_GAIN) << std::endl;
+	std::cout << "  Backligh = " << capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_BACKLIGHT) << std::endl;
+	std::cout << "Image streams profiles:" << std::endl;
+	for (int i = 0; i < profilesCount; i++)
+	{
+		capture.set(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_INTELPERC_PROFILE_IDX, (double)i);
+		std::cout << "  Profile[" << i << "]: ";
+		std::cout << "width = " << (int)capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_FRAME_WIDTH);
+		std::cout << ", height = " << (int)capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_FRAME_HEIGHT);
+		std::cout << ", fps = " << capture.get(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_FPS);
+		std::cout << std::endl;
+	}
+
+	profilesCount = (size_t)capture.get(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_INTELPERC_PROFILE_COUNT);
+	std::cout << "Depth stream." << std::endl;
+	std::cout << "  Low confidence value = " << capture.get(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_INTELPERC_DEPTH_LOW_CONFIDENCE_VALUE) << std::endl;
+	std::cout << "  Saturation value = " << capture.get(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_INTELPERC_DEPTH_SATURATION_VALUE) << std::endl;
+	std::cout << "  Confidence threshold = " << capture.get(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_INTELPERC_DEPTH_CONFIDENCE_THRESHOLD) << std::endl;
+	std::cout << "  Focal length = (" << capture.get(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_INTELPERC_DEPTH_FOCAL_LENGTH_HORZ) << ", "
+		<< capture.get(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_INTELPERC_DEPTH_FOCAL_LENGTH_VERT) << ")" << std::endl;
+	std::cout << "Depth streams profiles:" << std::endl;
+	for (int i = 0; i < profilesCount; i++)
+	{
+		capture.set(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_INTELPERC_PROFILE_IDX, (double)i);
+		std::cout << "  Profile[" << i << "]: ";
+		std::cout << "width = " << (int)capture.get(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_FRAME_WIDTH);
+		std::cout << ", height = " << (int)capture.get(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_FRAME_HEIGHT);
+		std::cout << ", fps = " << capture.get(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_FPS);
+		std::cout << std::endl;
+	}
+	cv::waitKey();
+}
+
 //---------------------------------------------------------------------------------------
 int CamSenz3D::init()
 {
 	this->capture.open(cv::CAP_INTELPERC);
+	//printStreamProperties(capture);
 	if (!this->capture.isOpened())
 	{
 		//std::cerr << "Can not open a capture object." << std::endl;
 		return -1;
 	}
 
-	if (!this->capture.set(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_INTELPERC_PROFILE_IDX, (double)1))
+	if (!this->capture.set(cv::CAP_INTELPERC_IMAGE_GENERATOR | cv::CAP_PROP_INTELPERC_PROFILE_IDX, (double)5))
 	{
 		//std::cerr << "Can not setup a image stream." << std::endl;
 		return -1;
 	}
 
-	if (!this->capture.set(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_INTELPERC_PROFILE_IDX, (double)1))
+	if (!this->capture.set(cv::CAP_INTELPERC_DEPTH_GENERATOR | cv::CAP_PROP_INTELPERC_PROFILE_IDX, (double)3))
 	{
 		//std::cerr << "Can not setup a depth stream." << std::endl;
 		return -1;
 	}
 
-	//svm_depth = cv::ml::SVM::load("svm_1_2_3_4_5_depth.svm");   //PROFUNDIDAD TODOS LOS ATAQUES (ENTREANDO ANTES)
-	svm_depth = cv::ml::SVM::load("svm_1_depth.svm"); // PROFUNDIDAD ATAQUE 1 (ENTRENADO ANTES)
-	//svm_rgb = cv::ml::SVM::load("svm_attack_01.svm"); //RGB ATAQUE 1 (ENTRENADO_NUEVO)
-	//svm_rgb = cv::ml::SVM::load("svm_1_2_3_4_5_rgb.svm"); //RGB TODOS LOS ATAQUES (ENTRENADO ANTES)
-	svm_rgb = cv::ml::SVM::load("svm_1_rgb.svm"); //RGB ATAQUE 1 (ENTRENADO ANTES)
-	
-	
 
+	svm_depth_attack_01 = cv::ml::SVM::load(".\\SVM_LBP_DEPTH\\svm_attack_01.svm");
+	svm_depth_attack_02 = cv::ml::SVM::load(".\\SVM_LBP_DEPTH\\svm_attack_02.svm");
+	svm_depth_attack_03 = cv::ml::SVM::load(".\\SVM_LBP_DEPTH\\svm_attack_03.svm");
+	svm_depth_attack_04 = cv::ml::SVM::load(".\\SVM_LBP_DEPTH\\svm_attack_04.svm");
+	svm_depth_attack_05 = cv::ml::SVM::load(".\\SVM_LBP_DEPTH\\svm_attack_05.svm");
+
+	svm_rgb_attack_01 = cv::ml::SVM::load(".\\SVM_LBP_RGB\\svm_attack_01.svm");
+	svm_rgb_attack_02 = cv::ml::SVM::load(".\\SVM_LBP_RGB\\svm_attack_02.svm");
+	svm_rgb_attack_03 = cv::ml::SVM::load(".\\SVM_LBP_RGB\\svm_attack_03.svm");
+	svm_rgb_attack_04 = cv::ml::SVM::load(".\\SVM_LBP_RGB\\svm_attack_04.svm");
+	svm_rgb_attack_05 = cv::ml::SVM::load(".\\SVM_LBP_RGB\\svm_attack_05.svm");
+	
+	
 	return 0;
 }
 
+//---------------------------------------------------------------------------------------
+float CamSenz3D::evalue(cv::Ptr<cv::ml::SVM> svm, cv::Mat &features, float umbral, const std::string &msg)
+{
+	cv::Mat_<float> sample = features;
+	float result = svm->predict(sample, cv::noArray(), cv::ml::StatModel::RAW_OUTPUT);
+	int preditClass = svm->predict(sample, cv::noArray());
+	float confidence = 1.0 / (1.0 + exp(-result));
+	std::cout << msg << " : " << result << " - " << confidence << " - " << preditClass << std::endl;
+	if (confidence < umbral)
+		std::cout << msg << " : BONA_FIDE" << std::endl;
+	else
+		std::cout << msg << " : ATTACK" << std::endl;
+
+	return confidence;
+}
 
 //---------------------------------------------------------------------------------------
 int CamSenz3D::isAttack()
@@ -168,11 +234,11 @@ int CamSenz3D::isAttack()
 				cv::Mat_<double> featuresRGB;
 				Util_LBP_CV::LBP_RGB(matFace, featuresRGB);
 
-				cv::Mat_<float> sample = featuresRGB;
-				float result = svm_rgb->predict(sample, cv::noArray(), cv::ml::StatModel::RAW_OUTPUT);
-				int preditClass = svm_rgb->predict(sample, cv::noArray());
-				float confidence = 1.0 / (1.0 + exp(-result));
-				//std::cout << "RGB" << result << " - " << confidence << " - " << preditClass << std::endl;
+				float score_attack_01_rgb = this->evalue(svm_rgb_attack_01, featuresRGB, 0.7, "RGB Attack 1");
+				float score_attack_02_rgb = this->evalue(svm_rgb_attack_02, featuresRGB, 0.7, "RGB Attack 2");
+				float score_attack_03_rgb = this->evalue(svm_rgb_attack_03, featuresRGB, 0.7, "RGB Attack 3");
+				float score_attack_04_rgb = this->evalue(svm_rgb_attack_04, featuresRGB, 0.7, "RGB Attack 4");
+				float score_attack_05_rgb = this->evalue(svm_rgb_attack_05, featuresRGB, 0.7, "RGB Attack 5");
 			}
 
 			cv::Rect rectFacedDepth;
@@ -184,11 +250,11 @@ int CamSenz3D::isAttack()
 				cv::Mat_<double> featureDepth;
 				Util_LBP_CV::LBP_Depth(matFaceDepth, featureDepth);
 
-				cv::Mat_<float> sample = featureDepth;
-				float result = svm_depth->predict(sample, cv::noArray(), cv::ml::StatModel::RAW_OUTPUT);
-				int preditClass = svm_depth->predict(sample, cv::noArray());
-				float confidence = 1.0 / (1.0 + exp(-result));
-				std::cout << "DEPTH" << result << " - " << confidence << " - " << preditClass << std::endl;
+				float score_attack_01_depth = this->evalue(svm_depth_attack_01, featureDepth, 0.7, "DEPTH Attack 1");
+				float score_attack_02_depth = this->evalue(svm_depth_attack_02, featureDepth, 0.7, "DEPTH Attack 2");
+				float score_attack_03_depth = this->evalue(svm_depth_attack_03, featureDepth, 0.7, "DEPTH Attack 3");
+				float score_attack_04_depth = this->evalue(svm_depth_attack_04, featureDepth, 0.7, "DEPTH Attack 4");
+				float score_attack_05_depth = this->evalue(svm_depth_attack_05, featureDepth, 0.7, "DEPTH Attack 5");
 			}
 
 			
@@ -201,7 +267,16 @@ int CamSenz3D::isAttack()
 //---------------------------------------------------------------------------------------
 int CamSenz3D::stop()
 {
-	svm_rgb.release();
-	svm_depth.release();
+	svm_rgb_attack_01.release();
+	svm_rgb_attack_02.release();
+	svm_rgb_attack_03.release();
+	svm_rgb_attack_04.release();
+	svm_rgb_attack_05.release();
+
+	svm_depth_attack_01.release();
+	svm_depth_attack_02.release();
+	svm_depth_attack_03.release();
+	svm_depth_attack_04.release();
+	svm_depth_attack_05.release();
 	return 0;
 }

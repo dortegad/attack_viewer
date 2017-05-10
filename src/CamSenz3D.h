@@ -22,11 +22,23 @@ class CamSenz3D
 {
 private:
 	cv::VideoCapture capture;
-	cv::Ptr<cv::ml::SVM> svm_rgb;
-	cv::Ptr<cv::ml::SVM> svm_depth;
+	cv::Ptr<cv::ml::SVM> svm_rgb_attack_01;
+	cv::Ptr<cv::ml::SVM> svm_rgb_attack_02;
+	cv::Ptr<cv::ml::SVM> svm_rgb_attack_03;
+	cv::Ptr<cv::ml::SVM> svm_rgb_attack_04;
+	cv::Ptr<cv::ml::SVM> svm_rgb_attack_05;
+
+	cv::Ptr<cv::ml::SVM> svm_depth_attack_01;
+	cv::Ptr<cv::ml::SVM> svm_depth_attack_02;
+	cv::Ptr<cv::ml::SVM> svm_depth_attack_03;
+	cv::Ptr<cv::ml::SVM> svm_depth_attack_04;
+	cv::Ptr<cv::ml::SVM> svm_depth_attack_05;
+
+	void printStreamProperties(cv::VideoCapture &capture);
 
 	void imshowDepth(const char *winname, cv::Mat &depth, cv::VideoCapture &capture);
 	bool detectFace(const cv::Mat &img, cv::Rect &rect);
+	float evalue(cv::Ptr<cv::ml::SVM> svm, cv::Mat &features, float umbral, const std::string &msg);
 public:
 	CamSenz3D();
 	~CamSenz3D();
