@@ -155,11 +155,11 @@ float CamSenz3D::evalue(cv::Ptr<cv::ml::SVM> svm, cv::Mat &features, float umbra
 	float result = svm->predict(sample, cv::noArray(), cv::ml::StatModel::RAW_OUTPUT);
 	int preditClass = svm->predict(sample, cv::noArray());
 	float confidence = 1.0 / (1.0 + exp(-result));
-	std::cout << msg << " : " << result << " - " << confidence << " - " << preditClass << std::endl;
-	if (confidence < umbral)
-		std::cout << msg << " : BONA_FIDE" << std::endl;
-	else
-		std::cout << msg << " : ATTACK" << std::endl;
+	//std::cout << msg << " : " << result << " - " << confidence << " - " << preditClass << std::endl;
+	//if (confidence < umbral)
+	//	std::cout << msg << " : BONA_FIDE" << std::endl;
+	//else
+	//	std::cout << msg << " : ATTACK" << std::endl;
 
 	return confidence;
 }
@@ -239,6 +239,13 @@ int CamSenz3D::isAttack()
 				float score_attack_03_rgb = this->evalue(svm_rgb_attack_03, featuresRGB, 0.7, "RGB Attack 3");
 				float score_attack_04_rgb = this->evalue(svm_rgb_attack_04, featuresRGB, 0.7, "RGB Attack 4");
 				float score_attack_05_rgb = this->evalue(svm_rgb_attack_05, featuresRGB, 0.7, "RGB Attack 5");
+				float meanScores = (score_attack_01_rgb +
+					score_attack_02_rgb +
+					score_attack_03_rgb +
+					score_attack_04_rgb +
+					score_attack_05_rgb) / 5.0;
+				std::cout << "RGB = " << meanScores << std::endl;
+
 			}
 
 			cv::Rect rectFacedDepth;
@@ -255,6 +262,12 @@ int CamSenz3D::isAttack()
 				float score_attack_03_depth = this->evalue(svm_depth_attack_03, featureDepth, 0.7, "DEPTH Attack 3");
 				float score_attack_04_depth = this->evalue(svm_depth_attack_04, featureDepth, 0.7, "DEPTH Attack 4");
 				float score_attack_05_depth = this->evalue(svm_depth_attack_05, featureDepth, 0.7, "DEPTH Attack 5");
+				float meanScores = (score_attack_01_depth +
+					score_attack_02_depth +
+					score_attack_03_depth +
+					score_attack_04_depth +
+					score_attack_05_depth) / 5.0;
+				std::cout << "DEP = " << meanScores << std::endl;
 			}
 
 			
